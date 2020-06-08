@@ -1,0 +1,80 @@
+信息系统与数据库技术练习14答题卡
+
+班级：     信息管理一班
+姓名：     余晓伟
+学号：     20190307109
+
+注：请将答案放置在序号下方。*/
+
+（一）
+/*1、打开PROJECT数据库。*/
+USE PROJECT
+/*2、创建存储过程p_ep1，功能是在Employee、Project、EP表
+查询部门号(Did)、雇员号(Eid)、姓名(Ename)、性别(Esex)、项目号(Pid)、项目名(Pname)、报酬(Wages)。*/
+CREATE PROC p_ep1
+AS
+SELECT Employee.Eid,Ename,Esex,Project.Pid,Pname,Wages
+FROM Employee JOIN Project JOIN EP
+ON Project.Pid=EP.Pid
+ON Employee.Eid=EP.Eid
+/*3、调用存储过程p_ep1。*/
+EXEC p_ep1
+/*4、创建存储过程p_ep2，功能是在Employee、Project、EP表查询指定工作日期(WorkDate)、指定部门号(Did)的部门号(Did)、雇员号(Eid)、姓名(Ename)、工作日期(WorkDate)、项目号(Pid)、项目名(Pname)、报酬(Wages)。
+注意：@WorkDate、@Did的类型和表中对应字段类型相同，否则下一题调用时可能出错*/
+CREATE PROC p_ep2
+@WorkDate VARCHAR(20),@Did VARCHAR(20)
+AS
+SELECT Employee.Did,Eid,Ename,WorkDate,Project.Pid,Pname,Wages
+FROM Employee JOIN Project JOIN EP
+ON Project.Pid=EP.Pid
+ON Employee.Eid=EP.Eid
+WHERE WorkDate=@WorkDate AND Did=@Did
+/*5、调用存储过程p_ep2查询工作日期为'1990-07-01 00:00:00.000'、部门号为D001的数据。*/
+EXEC p_cj2 @WorkDate='1990-07-01 00:00:00.000',@Did='D001' 
+/*6、创建存储过程p_ep3，功能是在Department、Employee表
+查询指定部门名(Dname)的部门号(Did)、部门名(Dname)、雇员号(Eid)、姓名(Ename)、
+性别(Esex)、工作日期(WorkDate)。当部门名未指定时查询财务部的数据。*/
+CREATE PROC p_ep3
+@Dname VARCHAR(20)='财务部'
+AS
+SELECT Department.Did,Dname,Employee.Eid, Ename,Esex,WorkDate
+FROM Department JOIN Employee
+ON Department.Did=Employee.DID
+WHERE Dname=@Dname
+/*7、调用存储过程p_ep3，调用时不输入任何参数。*/
+EXEC p_ep3
+/*8、调用存储过程p_ep3，查询人事部的数据。*/
+EXEC p_ep3 @Dname='人事部'
+/*9、创建存储过程p_ep4，功能是在Employee表中查询基本工资(BasePay)大于指定值的全部字段*/
+CREATE PROC p_ep4
+@BasePay INT
+AS
+SELECT *
+FROM Employee
+WHERE BasePay>@BasePay
+/*10、调用存储过程p_ep4，查询基本工资大于8000的数据。*/
+EXEC p_ep4 @BasePay>8000
+/*11、创建存储过程p_emp，功能是在Employee表中查询姓名(Ename)包含指定内容(最多输入10个字符)的全部字段。*/
+CREATE PROC p_emp
+@Ename VARCHAR(10)
+AS
+SELECT *
+FROM Employee
+WHERE Content LIKE '%'+@Ename+'%'
+/*12、调用存储过程p_emp，查询姓名包含“丽”的数据。*/
+EXEC p_emp @Ename='丽'
+/*13、查看存储过程p_emp定义文本。*/
+EXEC sp_helptext p_emp
+/*14、修改存储过程p_ep3，内容不变但要求加密
+提示：将第6题代码复制再修改*/
+CREATE PROC p_emp
+@Ename VARCHAR(10)
+WITH ENCRYPTION
+AS
+SELECT *
+FROM Employee
+WHERE Content LIKE '%'+@Ename+'%'
+/*15、查看存储过程p_ep3定义文本。*/
+EXEC sp_helptext p_ep3
+/*16、删除存储过程p_ep3*/
+DROP PROC p_ep3
